@@ -45,11 +45,29 @@ class API:
         to: number or array of numbers
         text: The text content of the message. See https://docs.moya.app/#formatting for details
         """
-        body = self.generate_send_text_body(to, text, recipient_type='broadcast' if isinstance(to, list) else 'individual')
+        body = self.generate_send_text_body(to, text, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
         params = {}
         if job_id:
             params['job_id'] = str(job_id)
         r = self.request("message", body, params)
+        return r.json()
+
+    def bulk_send_messages(self, messages, priority="medium", job_id=None):
+        """
+        https://docs.moya.app/#bulk-sending-messages
+
+        Send a text message to a set of users
+
+        messages: A list of tuples containing the number and the text content of the message to send.
+        """
+        body = []
+        for to, text in messages:
+            body.append(self.generate_send_text_body(to, text, recipient_type='individual', priority=priority))
+        params = {}
+        if job_id:
+            params['job_id'] = str(job_id)
+        r = self.request("messages", body, params)
+        return r.json()
 
     def upload_image(self, image_fh):
         """

@@ -1,5 +1,6 @@
-import re
+import csv
 import random
+import re
 
 NUMBER_MATCHER = re.compile(r'^[0-9]{7,15}$')
 
@@ -18,6 +19,23 @@ def file_reader(fh, batch_size=10000):
             continue
 
         buf.append(number)
+        if len(buf) >= batch_size:
+            yield buf
+            buf = []
+    if buf:
+        yield buf
+
+def csv_reader(fh, batch_size=1000):
+    """
+    Read through a CSV with headers, it must contain at least a column called to which contains the numbers
+    """
+    buf = []
+    for row in csv.DictReader(fh):
+        number = row['to']
+        if not is_number(number):
+            raise Exception("Line {number} doesn't look like a phone number")
+        buf.append((number, row))
+
         if len(buf) >= batch_size:
             yield buf
             buf = []
