@@ -1,9 +1,9 @@
 import argparse
 from moya.messaging import API
+from moya.argtypes import setup_argparse
 
-parser = argparse.ArgumentParser(description="Print details about the account's configuration")
-parser.add_argument("token", help="API bot token")
+parser = setup_argparse("Print details about the account's configuration", include_job_id=False)
 args = parser.parse_args()
 
-api = API(args.token)
+api = API(args.token, args.endpoint)
 print(api.get_configuration())

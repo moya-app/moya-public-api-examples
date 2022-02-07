@@ -1,13 +1,13 @@
 import argparse
 from requests import HTTPError
 from moya.messaging import API
+from moya.argtypes import setup_argparse
 
-parser = argparse.ArgumentParser(description="Save the accounts avatar to a file")
-parser.add_argument("token", help="API token")
+parser = setup_argparse("Save the accounts avatar to a file", include_job_id=False)
 parser.add_argument("output", type=argparse.FileType('wb'), help="Path to save to")
 args = parser.parse_args()
 
-api = API(args.token)
+api = API(args.token, args.endpoint)
 try:
     image = api.get_avatar()
     args.output.write(image)

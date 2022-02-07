@@ -1,7 +1,9 @@
 from moya.messaging import API
-import sys
+from moya.argtypes import setup_argparse
 
-# May be DID or number
-_, token, lookup = sys.argv
-api = API(token)
-print(api.lookup_user(lookup))
+parser = setup_argparse("Look up information about a single user", include_job_id=False)
+parser.add_argument("item", help="Number or DID")
+args = parser.parse_args()
+
+api = API(args.token, args.endpoint)
+print(api.lookup_user(args.item))

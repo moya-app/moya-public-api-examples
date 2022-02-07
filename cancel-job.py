@@ -1,11 +1,8 @@
-import argparse
 from moya.messaging import API
-from moya.argtypes import uuid_type
+from moya.argtypes import setup_argparse
 
-parser = argparse.ArgumentParser(description="Cancel a specific job")
-parser.add_argument("token", help="API token")
-parser.add_argument("jobid", type=uuid_type, help="The job id to use")
+parser = setup_argparse("Cancel a specific job")
 args = parser.parse_args()
 
-api = API(args.token)
-api.cancel_job(args.jobid)
+api = API(args.token, args.endpoint)
+api.cancel_job(args.job_id)
