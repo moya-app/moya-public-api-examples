@@ -13,6 +13,7 @@ from moya.timing import Timer
 parser = setup_argparse("Bulk send templated messages to moya users")
 parser.add_argument("csv", type=argparse.FileType('r'), help="A CSV with a header containing the names of the variables with one column called `to` containing the numbers to send to")
 parser.add_argument("template", type=str, help="A file containing a j2 template of the message to send")
+parser.add_argument('-d', '--deduplicate', action="store_true", help='Remove duplicates.')
 args = parser.parse_args()
 
 api = API(args.token, args.endpoint)
@@ -26,7 +27,7 @@ print(f"Job ID: {args.job_id}")
 timer = Timer()
 
 try:
-    for items in csv_reader(args.csv):
+    for items in csv_reader(fh=args.csv, duplicate=args.deduplicate):
         messages = [(to, template.render(**variables)) for to, variables in items]
 
         api.bulk_send_messages(messages, job_id=args.job_id)
