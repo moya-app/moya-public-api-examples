@@ -27,7 +27,7 @@ print(f"Job ID: {args.job_id}")
 timer = Timer()
 
 try:
-    for items in csv_reader(fh=args.csv, duplicate=args.deduplicate):
+    for items in csv_reader(fh=args.csv, dp=args.deduplicate):
         messages = [(to, template.render(**variables)) for to, variables in items]
 
         api.bulk_send_messages(messages, job_id=args.job_id)

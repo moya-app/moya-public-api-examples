@@ -25,7 +25,7 @@ def file_reader(fh, batch_size=10000):
     if buf:
         yield buf
 
-def csv_reader(fh, duplicate, batch_size=1000):
+def csv_reader(fh, dp=False, batch_size=1000):
     """
     Read through a CSV with headers, it must contain at least a column called to which contains the numbers
     """
@@ -38,7 +38,7 @@ def csv_reader(fh, duplicate, batch_size=1000):
         if not is_number(number):
             print(f"Line {number} doesn't look like a phone number - skipping")
             continue
-        if duplicate:
+        if dp:
             if number in deduplicate:
                 continue
             deduplicate.add(number)
