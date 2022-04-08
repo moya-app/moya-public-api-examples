@@ -12,4 +12,4 @@ api = API(args.token, args.endpoint)
 image_url = api.upload_image(args.image)
 print(f"Image uploaded to {image_url}")
 for numbers in args.numbers:
-    api.send_image(numbers, image_url, job_id=args.job_id)
+    api.send_image(numbers, image_url, job_id=args.job_id, priority=args.priority)

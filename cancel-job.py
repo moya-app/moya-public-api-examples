@@ -1,7 +1,7 @@
 from moya.messaging import API
 from moya.argtypes import setup_argparse
 
-parser = setup_argparse("Cancel a specific job")
+parser = setup_argparse("Cancel a specific job", include_priority=False)
 args = parser.parse_args()
 
 api = API(args.token, args.endpoint)

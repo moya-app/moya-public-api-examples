@@ -18,7 +18,7 @@ timer = Timer()
 
 try:
     for numbers in args.numbers:
-        api.send_message(numbers, message_text, job_id=args.job_id)
+        api.send_message(numbers, message_text, job_id=args.job_id, priority=args.priority)
         timer.add_call(len(numbers))
         print(f"Sent up to number {numbers[-1]}")
 except KeyboardInterrupt:

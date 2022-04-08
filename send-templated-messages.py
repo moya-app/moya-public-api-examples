@@ -29,7 +29,7 @@ try:
     for items in csv_reader(args.csv):
         messages = [(to, template.render(**variables)) for to, variables in items]
 
-        api.bulk_send_messages(messages, job_id=args.job_id)
+        api.bulk_send_messages(messages, job_id=args.job_id, priority=args.priority)
         timer.add_call(len(messages))
         print(f"Sent up to number {items[-1][0]}")
 except KeyboardInterrupt:
