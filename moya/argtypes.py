@@ -9,7 +9,6 @@ def uuid_type(data):
 def setup_argparse(description, include_job_id=True):
     parser = argparse.ArgumentParser(description="Send image to moya users")
     parser.add_argument("--endpoint", "-e", default="https://api.moya.app", help="The endpoint to use")
-    parser.add_argument('-d', '--deduplicate', action="store_true", help='Remove duplicates.')
     if include_job_id:
         parser.add_argument("--job-id", "-j", default=uuid.uuid4(), type=uuid_type, help="The job id to use")
 
@@ -23,12 +22,9 @@ def number_or_file(batch_size=10000):
         """
         If item is a file, open it for batch processing, otherwise if it is a number then return it.
         """
-        parser = setup_argparse("Remove duplicates from file")
-        args = parser.parse_args()
-
         if os.path.exists(item):
             fh = open(item, 'r')
-            return file_reader(fh, batch_size, dp=args.deduplicate)
+            return file_reader(fh, batch_size)
         elif is_number(item):
             return [[item]]
 
