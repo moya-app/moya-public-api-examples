@@ -23,7 +23,9 @@ def number_or_file(batch_size=10000):
         """
         If item is a file, open it for batch processing, otherwise if it is a number then return it.
         """
-        args = setup_argparse("Remove duplicates from file")
+        parser = setup_argparse("Remove duplicates from file")
+        args = parser.parse_args()
+
         if os.path.exists(item):
             fh = open(item, 'r')
             return file_reader(fh, batch_size, dp=args.deduplicate)
