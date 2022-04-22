@@ -3,18 +3,22 @@ import random
 import re
 
 NUMBER_MATCHER = re.compile(r'^[0-9]{7,15}$')
+HASHED_NUMBER_MATCHER = re.compile(r'^[0-9A-F]{64}$')
 
-def is_number(thing):
-    return NUMBER_MATCHER.match(thing)
+def is_number(thing, hashed=False):
+    if hashed:
+        return HASHED_NUMBER_MATCHER.match(thing)
+    else:
+        return NUMBER_MATCHER.match(thing)
 
-def file_reader(fh, batch_size=10000):
+def file_reader(fh, batch_size=10000, hashed=False):
     """
     Read through a file with phone numbers on each line and return the valid looking ones in batches
     """
     buf = []
     for number in fh:
         number = number.strip()
-        if not is_number(number):
+        if not is_number(number, hashed=hashed):
             print(f"Line {number} doesn't look like a phone number - skipping")
             continue
 
@@ -25,14 +29,14 @@ def file_reader(fh, batch_size=10000):
     if buf:
         yield buf
 
-def csv_reader(fh, batch_size=1000):
+def csv_reader(fh, batch_size=1000, hashed=False):
     """
     Read through a CSV with headers, it must contain at least a column called to which contains the numbers
     """
     buf = []
     for row in csv.DictReader(fh):
         number = row['to']
-        if not is_number(number):
+        if not is_number(number, hashed=hashed):
             raise Exception("Line {number} doesn't look like a phone number")
         buf.append((number, row))
 

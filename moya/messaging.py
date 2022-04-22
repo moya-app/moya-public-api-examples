@@ -114,7 +114,7 @@ class API:
         r = self.request(f'users/{lookup}', action="get")
         return r.json()["user_profile"]
 
-    def lookup_numbers(self, numbers):
+    def lookup_numbers(self, numbers, hashed=False):
         """
         https://docs.moya.app/#bulk-contact-lookups
 
@@ -124,7 +124,10 @@ class API:
             return []
         if len(numbers) > 3000:
             raise Exception("Too many numbers to be able to look up in one go")
-        r = self.request('contacts', {"contacts": numbers})
+        params = {"contacts": numbers}
+        if hashed:
+            params["hashed"] = True
+        r = self.request("contacts", params)
         return r.json()["match_list"]
 
     def cancel_job(self, job_id):
