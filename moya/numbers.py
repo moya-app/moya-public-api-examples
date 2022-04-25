@@ -11,16 +11,22 @@ def is_number(thing, hashed=False):
     else:
         return NUMBER_MATCHER.match(thing)
 
-def file_reader(fh, batch_size=10000, hashed=False):
+def file_reader(fh, batch_size=10000, hashed=False, dp=False):
     """
     Read through a file with phone numbers on each line and return the valid looking ones in batches
     """
     buf = []
+    deduplicate = set()
+
     for number in fh:
         number = number.strip()
         if not is_number(number, hashed=hashed):
             print(f"Line {number} doesn't look like a phone number - skipping")
             continue
+        if dp:
+            if number in deduplicate:
+                continue
+            deduplicate.add(number)
 
         buf.append(number)
         if len(buf) >= batch_size:
@@ -29,15 +35,23 @@ def file_reader(fh, batch_size=10000, hashed=False):
     if buf:
         yield buf
 
-def csv_reader(fh, batch_size=1000, hashed=False):
+def csv_reader(fh, batch_size=1000, hashed=False, dp=False):
     """
     Read through a CSV with headers, it must contain at least a column called to which contains the numbers
     """
     buf = []
+    deduplicate = set()
+
     for row in csv.DictReader(fh):
         number = row['to']
         if not is_number(number, hashed=hashed):
-            raise Exception("Line {number} doesn't look like a phone number")
+            print(f"Line {number} doesn't look like a phone number - skipping")
+            continue
+        if dp:
+            if number in deduplicate:
+                continue
+            deduplicate.add(number)
+
         buf.append((number, row))
 
         if len(buf) >= batch_size:

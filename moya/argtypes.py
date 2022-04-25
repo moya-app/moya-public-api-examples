@@ -6,9 +6,11 @@ from moya.numbers import file_reader, is_number
 def uuid_type(data):
     return uuid.UUID(data)
 
-def setup_argparse(description, include_job_id=True, include_priority=True):
+def setup_argparse(description, include_job_id=True, include_priority=True, include_deduplicate=True):
     parser = argparse.ArgumentParser(description="Send image to moya users")
     parser.add_argument("--endpoint", "-e", default="https://api.moya.app", help="The endpoint to use")
+    if include_deduplicate:
+        parser.add_argument('-d', '--deduplicate', action="store_true", help='Remove duplicates')
     if include_priority:
         parser.add_argument("-p", "--priority", choices=("low", "medium", "high"), default="low", help="The send priority")
     if include_job_id:
@@ -19,14 +21,14 @@ def setup_argparse(description, include_job_id=True, include_priority=True):
 
     return parser
 
-def number_or_file(batch_size=10000, hashed=False):
+def number_or_file(batch_size=10000, hashed=False, deduplicate=False):
     def fn(item):
         """
         If item is a file, open it for batch processing, otherwise if it is a number then return it.
         """
         if os.path.exists(item):
             fh = open(item, 'r')
-            return file_reader(fh, batch_size, hashed=hashed)
+            return file_reader(fh, batch_size, hashed=hashed, dp=deduplicate)
         else:
             if is_number(item, hashed=hashed):
                 return [[item]]
