@@ -9,6 +9,6 @@ args = parser.parse_args()
 
 api = API(args.token, args.endpoint)
 
-for numbers in number_or_file(3000, hashed=args.hashed)(args.numbers):
+for numbers in number_or_file(3000, hashed=args.hashed, deduplicate=args.deduplicate)(args.numbers):
     for number in api.lookup_numbers(numbers, hashed=args.hashed):
         print(number)
