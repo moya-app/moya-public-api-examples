@@ -32,7 +32,7 @@ class API:
             reason += f" {r.json()}"
         except:
             pass
-            
+
         raise Exception(f"{r.status_code} Server error: {reason}")
 
     def generate_send_text_body(self, to, body, recipient_type="individual", priority="low"):
@@ -164,6 +164,15 @@ class API:
         r = self.request("avatar", action="get")
         return r.content
 
+    def set_avatar(self, image_fh, content_type="image/jpeg"):
+        """
+        https://docs.moya.app/#avatar-image
+
+        Update the avatar of the account
+        """
+        r = self.request("avatar", action="put", files=[('file', ('t.jpg', image_fh, content_type))])
+        return r.content
+
     def update(self, **updates):
         """
         https://docs.moya.app/#modification
@@ -172,4 +181,3 @@ class API:
         """
         r = self.request("update", params={"name": "name"}, action="put")
         return r.content
-
