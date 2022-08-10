@@ -24,8 +24,16 @@ class API:
         fn = getattr(self.session, action)
         path = f"{self.base_url}/v1/{path}"
         r = fn(path, params=params, headers={"Authorization": f"Bearer {self.token}"}, **extra_args)
-        r.raise_for_status()
-        return r
+        if 200 <= r.status_code < 400:
+            return r
+
+        reason = r.reason
+        try:
+            reason += f" {r.json()}"
+        except:
+            pass
+            
+        raise Exception(f"{r.status_code} Server error: {reason}")
 
     def generate_send_text_body(self, to, body, recipient_type="individual", priority="low"):
         return {
@@ -155,3 +163,13 @@ class API:
         """
         r = self.request("avatar", action="get")
         return r.content
+
+    def update(self, **updates):
+        """
+        https://docs.moya.app/#modification
+
+        Modify the properties of an account
+        """
+        r = self.request("update", params={"name": "name"}, action="put")
+        return r.content
+
