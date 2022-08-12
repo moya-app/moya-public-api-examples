@@ -82,7 +82,7 @@ class API:
 
         Upload a file ready for distribution
         """
-        r = self.request("upload_file", files=[('file', ('t.jpg', fh))])
+        r = self.request("upload_file", files=[('file', ('test-file.pdf', fh))])
         return r.json()["url"]
 
     def upload_image(self, image_fh):
