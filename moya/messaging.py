@@ -77,6 +77,14 @@ class API:
         r = self.request("messages", body, params)
         return r.json()
 
+    def upload_file(self, fh):
+        """
+
+        Upload a file ready for distribution
+        """
+        r = self.request("upload_file", files=[('file', ('t.jpg', fh))])
+        return r.json()["url"]
+
     def upload_image(self, image_fh):
         """
         https://docs.moya.app/#uploading-an-image
@@ -86,25 +94,28 @@ class API:
         r = self.request("upload_image", files=[('file', ('t.jpg', image_fh))])
         return r.json()["url"]
 
-    def generate_send_image_body(self, to, image_url, recipient_type="individual", priority="medium"):
+    def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium"):
         return {
             'recipient_type': recipient_type,
             'type': 'image',
             'to': to,
             'priority': priority,
-            'image': { 'url' : image_url }
+            'image': { 'url' : url }
         }
 
     def send_image(self, to, image_url, priority="medium", job_id=None):
+        return self.send_file(to, image_url, priority, job_id)
+
+    def send_file(self, to, url, priority="medium", job_id=None):
         """
         https://docs.moya.app/#sending-the-image-to-a-user
 
-        Send an image to a set of users
+        Send an image or file to a set of users
 
         to: number or array of numbers
-        image_url: The url for the image. Must have been returned by upload_image() above
+        url: The url for the file or image. Must have been returned by upload_image/upload_file() above
         """
-        body = self.generate_send_image_body(to, image_url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
+        body = self.generate_send_file_body(to, url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
         params = {}
         if job_id:
             params['job_id'] = str(job_id)
@@ -179,5 +190,5 @@ class API:
 
         Modify the properties of an account
         """
-        r = self.request("update", params={"name": "name"}, action="put")
-        return r.content
+        r = self.request("update", updates, action="put")
+        return r.json()
