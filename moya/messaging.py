@@ -192,3 +192,13 @@ class API:
         """
         r = self.request("update", updates, action="put")
         return r.json()
+
+    def token_info(self):
+        """
+        https://docs.moya.app/#individual-user-lookups
+
+        Return data about the token in use
+        """
+        r = self.request(f'token/info', action="get")
+        return r.json()
+
