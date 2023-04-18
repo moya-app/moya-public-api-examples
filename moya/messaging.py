@@ -35,16 +35,19 @@ class API:
 
         raise Exception(f"{r.status_code} Server error: {reason}")
 
-    def generate_send_text_body(self, to, body, recipient_type="individual", priority="low"):
+    def generate_send_text_body(self, to, body, recipient_type="individual", priority="low", allow_merge=True):
         return {
             'recipient_type': recipient_type,
             'type': 'text',
             'to': to,
             'priority': priority,
-            'text': { 'body' : body }
+            'text': {
+                'body' : body,
+                'allow_merge': allow_merge,
+            }
         }
 
-    def send_message(self, to, text : str, priority="medium", job_id=None):
+    def send_message(self, to, text : str, priority="medium", job_id=None, allow_merge=True):
         """
         https://docs.moya.app/#sending-messages
 
@@ -53,14 +56,20 @@ class API:
         to: number or array of numbers
         text: The text content of the message. See https://docs.moya.app/#formatting for details
         """
-        body = self.generate_send_text_body(to, text, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
+        body = self.generate_send_text_body(
+            to,
+            text,
+            recipient_type='broadcast' if isinstance(to, list) else 'individual',
+            priority=priority,
+            allow_merge=allow_merge,
+        )
         params = {}
         if job_id:
             params['job_id'] = str(job_id)
         r = self.request("message", body, params)
         return r.json()
 
-    def bulk_send_messages(self, messages, priority="medium", job_id=None):
+    def bulk_send_messages(self, messages, priority="medium", job_id=None, allow_merge=True):
         """
         https://docs.moya.app/#bulk-sending-messages
 
@@ -70,7 +79,7 @@ class API:
         """
         body = []
         for to, text in messages:
-            body.append(self.generate_send_text_body(to, text, recipient_type='individual', priority=priority))
+            body.append(self.generate_send_text_body(to, text, recipient_type='individual', priority=priority, allow_merge=allow_merge))
         params = {}
         if job_id:
             params['job_id'] = str(job_id)

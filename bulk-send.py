@@ -3,7 +3,7 @@ from moya.messaging import API
 from moya.argtypes import number_or_file, setup_argparse
 from moya.timing import Timer
 
-parser = setup_argparse("Bulk send messages to moya users")
+parser = setup_argparse("Bulk send messages to moya users", include_no_merge=True)
 parser.add_argument("numbers", type=number_or_file(), help="The number or file of numbers to send to")
 parser.add_argument("message", type=argparse.FileType('r'), help="A file containing the message to send")
 args = parser.parse_args()
@@ -18,7 +18,7 @@ timer = Timer()
 
 try:
     for numbers in args.numbers:
-        api.send_message(numbers, message_text, job_id=args.job_id, priority=args.priority)
+        api.send_message(numbers, message_text, job_id=args.job_id, priority=args.priority, allow_merge=not args.no_merge)
         timer.add_call(len(numbers))
         print(f"Sent up to number {numbers[-1]}")
 except KeyboardInterrupt:
