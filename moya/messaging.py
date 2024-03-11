@@ -33,7 +33,7 @@ class API:
         except:
             pass
 
-        raise Exception(f"{r.status_code} Server error: {reason}")
+        raise Exception(f"{r.status_code} Server error: {reason}. Query was {path} with {content}")
 
     def generate_send_text_body(self, to, body, recipient_type="individual", priority="low", allow_merge=True):
         return {
