@@ -6,6 +6,9 @@ from io import BytesIO
 from urllib.parse import urlparse
 import requests
 
+# This tool is to download and decrypt moya app encrypted image urls received from webhooks.
+# The documentation can be found here: https://docs.moya.app/#receive-image
+
 # Regular expression to match valid IV and key combinations
 IV_KEY_REGEX = re.compile(r"([A-Fa-f0-9]{2}){48}|([A-Fa-f0-9]{2}){44}")
 
@@ -30,7 +33,7 @@ def get_key_and_iv(key_iv_combo) -> (bytes, bytes):
     return aes_key, iv
 
 
-def download_image(encrypted_image_url: str) -> (BytesIO, int):
+def download_image(encrypted_image_url: str) -> BytesIO | None:
     """
     Downloads and decrypts an image from the provided URL.
     """
