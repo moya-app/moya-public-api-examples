@@ -1,2 +1,6 @@
 requests
 jinja2==3
+
+# for image decryption
+cryptography==43.0.1
+requests==2.32.3
