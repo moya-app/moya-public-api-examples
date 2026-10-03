@@ -94,6 +94,19 @@ class API:
         r = self.request("upload_file", files=[('file', ('test-file.pdf', fh))])
         return r.json()["url"]
 
+    def upload_encrypted_file(self, filename, ciphertext):
+        """
+        https://docs.moya.app/#post-/v1/message
+
+        Upload a file encrypted with moya.aesgcm.encrypt(). The filename's extension is kept, so
+        that the app knows how to show the file once it has decrypted it.
+        """
+        r = self.request("upload_file", files=[
+            ('file', (filename, ciphertext, 'application/octet-stream')),
+            ('encrypted', (None, 'true')),
+        ])
+        return r.json()["url"]
+
     def upload_image(self, image_fh):
         """
         https://docs.moya.app/#uploading-an-image
@@ -103,19 +116,19 @@ class API:
         r = self.request("upload_image", files=[('file', ('t.jpg', image_fh))])
         return r.json()["url"]
 
-    def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium"):
+    def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium", kind="image"):
         return {
             'recipient_type': recipient_type,
-            'type': 'image',
+            'type': kind,
             'to': to,
             'priority': priority,
-            'image': { 'url' : url }
+            kind: { 'url' : url }
         }
 
     def send_image(self, to, image_url, priority="medium", job_id=None):
         return self.send_file(to, image_url, priority, job_id)
 
-    def send_file(self, to, url, priority="medium", job_id=None):
+    def send_file(self, to, url, priority="medium", job_id=None, kind="image"):
         """
         https://docs.moya.app/#sending-the-image-to-a-user
 
@@ -123,8 +136,9 @@ class API:
 
         to: number or array of numbers
         url: The url for the file or image. Must have been returned by upload_image/upload_file() above
+        kind: "image" or "file"
         """
-        body = self.generate_send_file_body(to, url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
+        body = self.generate_send_file_body(to, url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority, kind=kind)
         params = {}
         if job_id:
             params['job_id'] = str(job_id)
