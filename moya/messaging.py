@@ -94,6 +94,19 @@ class API:
         r = self.request("upload_file", files=[('file', (filename, fh))])
         return r.json()["url"]
 
+    def upload_encrypted_file(self, filename, ciphertext):
+        """
+        https://docs.moya.app/#post-/v1/message
+
+        Upload a file encrypted with moya.aesgcm.encrypt(). The filename's extension is kept, so
+        that the app knows how to show the file once it has decrypted it.
+        """
+        r = self.request("upload_file", files=[
+            ('file', (filename, ciphertext, 'application/octet-stream')),
+            ('encrypted', (None, 'true')),
+        ])
+        return r.json()["url"]
+
     def upload_image(self, image_fh):
         """
         https://docs.moya.app/#uploading-an-image
