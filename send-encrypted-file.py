@@ -1,9 +1,7 @@
 import argparse
 import os
 
-import requests
-
-from moya.aesgcm import decrypt, encrypt, to_aesgcm_url
+from moya.aesgcm import download, encrypt, to_aesgcm_url
 from moya.argtypes import number_or_file, setup_argparse
 from moya.messaging import API
 
@@ -26,12 +24,12 @@ filename = os.path.basename(args.file.name)
 https_url = api.upload_encrypted_file(filename, ciphertext)
 print(f"Encrypted file uploaded to {https_url}")
 
+aesgcm_url = to_aesgcm_url(https_url, iv_key)
+
 if args.verify:
-    if decrypt(requests.get(https_url, timeout=60).content, iv_key) != plaintext:
+    if download(aesgcm_url) != plaintext:
         raise SystemExit("Uploaded file did not decrypt to the original")
     print("Upload decrypts correctly")
-
-aesgcm_url = to_aesgcm_url(https_url, iv_key)
 
 if args.numbers:
     kind = "image" if os.path.splitext(filename)[1].lower() in IMAGE_EXTENSIONS else "file"
