@@ -7,7 +7,8 @@ from moya.aesgcm import download, encrypt, to_aesgcm_url
 from moya.argtypes import number_or_file, setup_argparse
 from moya.messaging import API
 
-# Shown inline in the chat once downloaded; any other extension is sent as a file
+# Uploaded with upload_image (upload_file refuses them) and shown inline in the chat once downloaded;
+# any other extension is uploaded and sent as a file
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 
 parser = setup_argparse("Encrypt a file and send it to moya users")
@@ -23,8 +24,10 @@ ciphertext, iv_key = encrypt(plaintext)
 
 # Keep the real extension: the app decides how to show the file from the extension in the URL
 filename = os.path.basename(args.file.name)
-https_url = api.upload_encrypted_file(filename, ciphertext)
-print(f"Encrypted file uploaded to {https_url}")
+kind = "image" if os.path.splitext(filename)[1].lower() in IMAGE_EXTENSIONS else "file"
+upload = api.upload_encrypted_image if kind == "image" else api.upload_encrypted_file
+https_url = upload(filename, ciphertext)
+print(f"Encrypted {kind} uploaded to {https_url}")
 
 aesgcm_url = to_aesgcm_url(https_url, iv_key)
 
@@ -38,7 +41,6 @@ if args.verify:
     print("Upload decrypts correctly")
 
 if args.numbers:
-    kind = "image" if os.path.splitext(filename)[1].lower() in IMAGE_EXTENSIONS else "file"
     for numbers in args.numbers:
         api.send_file(numbers, aesgcm_url, job_id=args.job_id, priority=args.priority, type=kind)
 

@@ -99,7 +99,8 @@ class API:
         https://docs.moya.app/#post-/v1/message
 
         Upload a file encrypted with moya.aesgcm.encrypt(). The filename's extension is kept, so
-        that the app knows how to show the file once it has decrypted it.
+        that the app knows how to show the file once it has decrypted it. Images are refused here:
+        upload them with upload_encrypted_image().
         """
         r = self.request("upload_file", files=[
             ('file', (filename, ciphertext, 'application/octet-stream')),
@@ -114,6 +115,20 @@ class API:
         Upload and optimize an image ready for distribution
         """
         r = self.request("upload_image", files=[('file', ('t.jpg', image_fh))])
+        return r.json()["url"]
+
+    def upload_encrypted_image(self, filename, ciphertext):
+        """
+        https://docs.moya.app/#uploading-an-image
+
+        Upload an image encrypted with moya.aesgcm.encrypt(). It is stored as uploaded, not optimized,
+        and the filename's extension is kept, so that the app knows to show it as an image once it has
+        decrypted it.
+        """
+        r = self.request("upload_image", files=[
+            ('file', (filename, ciphertext, 'application/octet-stream')),
+            ('encrypted', (None, 'true')),
+        ])
         return r.json()["url"]
 
     def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium", type="image"):
