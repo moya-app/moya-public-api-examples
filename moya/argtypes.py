@@ -28,6 +28,12 @@ def number_or_file(batch_size=10000, hashed=False, deduplicate=False):
         """
         If item is a file, open it for batch processing, otherwise if it is a number then return it.
         """
+        if isinstance(item, list):
+            if all(is_number(i, hashed=hashed) for i in item):
+                return [item]
+            else:
+                raise Exception(f"Invalid number found in {item}")
+
         if os.path.exists(item):
             fh = open(item, 'r')
             return file_reader(fh, batch_size, hashed=hashed, dp=deduplicate)

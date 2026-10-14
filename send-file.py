@@ -9,7 +9,7 @@ args = parser.parse_args()
 
 api = API(args.token, args.endpoint)
 
-file_url = api.upload_file(args.file)
+file_url = api.upload_file(args.file, filename=args.file.name)
 print(f"File uploaded to {file_url}")
 if args.numbers:
     for numbers in args.numbers:

@@ -86,12 +86,12 @@ class API:
         r = self.request("messages", body, params)
         return r.json()
 
-    def upload_file(self, fh):
+    def upload_file(self, fh, filename="test-file.pdf"):
         """
 
         Upload a file ready for distribution
         """
-        r = self.request("upload_file", files=[('file', ('test-file.pdf', fh))])
+        r = self.request("upload_file", files=[('file', (filename, fh))])
         return r.json()["url"]
 
     def upload_image(self, image_fh):
@@ -103,19 +103,22 @@ class API:
         r = self.request("upload_image", files=[('file', ('t.jpg', image_fh))])
         return r.json()["url"]
 
-    def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium"):
+    def generate_send_file_body(self, to, url, recipient_type="individual", priority="medium", type="image"):
         return {
             'recipient_type': recipient_type,
-            'type': 'image',
+            'type': type,
             'to': to,
             'priority': priority,
-            'image': { 'url' : url }
+            type: { 'url' : url }
         }
 
     def send_image(self, to, image_url, priority="medium", job_id=None):
-        return self.send_file(to, image_url, priority, job_id)
+        return self.send_file(to, image_url, priority, job_id, type="image")
 
-    def send_file(self, to, url, priority="medium", job_id=None):
+    def send_image_text(self, to, image_url, text: str, priority="medium", job_id=None):
+        return self.send_file(to, image_url, priority, job_id, type="image_text", text=text)
+
+    def send_file(self, to, url, priority="medium", job_id=None, type="file", text: str | None = None):
         """
         https://docs.moya.app/#sending-the-image-to-a-user
 
@@ -124,10 +127,15 @@ class API:
         to: number or array of numbers
         url: The url for the file or image. Must have been returned by upload_image/upload_file() above
         """
-        body = self.generate_send_file_body(to, url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority)
+        is_image_text = type == "image_text"
+        body = self.generate_send_file_body(to, url, recipient_type='broadcast' if isinstance(to, list) else 'individual', priority=priority, type="image" if is_image_text else type)
         params = {}
         if job_id:
             params['job_id'] = str(job_id)
+
+        if is_image_text:
+            body['text'] = { "body": text }
+            body['type'] = 'image_text'
 
         return self.request("message", body, params)
 
@@ -164,7 +172,8 @@ class API:
 
         Cancel a given job
         """
-        self.request(f"jobs/{job_id}", action="delete")
+        res = self.request(f"jobs/{job_id}", action="delete")
+        print(res.content)
 
     def get_configuration(self):
         """
@@ -199,7 +208,7 @@ class API:
 
         Modify the properties of an account
         """
-        r = self.request("update", updates, action="put")
+        r = self.request("configuration", updates, action="put")
         return r.json()
 
     def token_info(self):
