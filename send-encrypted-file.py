@@ -1,6 +1,8 @@
 import argparse
 import os
 
+from cryptography.exceptions import InvalidTag
+
 from moya.aesgcm import download, encrypt, to_aesgcm_url
 from moya.argtypes import number_or_file, setup_argparse
 from moya.messaging import API
@@ -27,7 +29,11 @@ print(f"Encrypted file uploaded to {https_url}")
 aesgcm_url = to_aesgcm_url(https_url, iv_key)
 
 if args.verify:
-    if download(aesgcm_url) != plaintext:
+    try:
+        intact = download(aesgcm_url) == plaintext
+    except InvalidTag:
+        intact = False
+    if not intact:
         raise SystemExit("Uploaded file did not decrypt to the original")
     print("Upload decrypts correctly")
 
