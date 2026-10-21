@@ -9,3 +9,5 @@ In this repository you can find a collection of scripts which can be used as a b
 ## Running the samples
 
 All of the samples here are either very simple code, or print usage documentation when run with `-h`.
+
+`send-encrypted-file.py` encrypts a file before uploading it so that it is stored and served encrypted, and is the inverse of `decrypt-picture.py`.
